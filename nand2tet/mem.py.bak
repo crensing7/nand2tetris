@@ -1,0 +1,69 @@
+import curses
+import sys
+from conv import b2d
+
+class memory:
+    def __init__(self, size):
+        self.size = size
+        self.selected = 0
+        self.array = [[0 for _ in range(16)] for i in range(size)]
+        self.cache = 0
+
+    def state(self):
+        return self.array[self.selected]
+
+    def update(self, word):
+        self.array[self.selected] = word
+        addr = b2d(word)
+        if 16384 <= addr < 24576:
+            offset = addr - 16384 
+            row = offset // 32
+            start = 16384 + row * 32
+            data = [''.join('█' if bit else ' ' for bit in word) for word in self.array[start:start + 32]]
+            self.cache[row] = data 
+
+    def addr(self, address):
+        self.selected = address
+
+    def next(self):
+        self.selected = (self.selected + 1) % self.size
+        
+    def full(self):
+        for index, register in enumerate(self.array):
+            print(f'{index:02d}: {register}')
+
+    def update_cache(self):
+        screen = []
+        for row in range(256):
+            start = 16384 + (row * 32)
+            data = [''.join('█' if bit else ' ' for bit in word) for word in self.array[start:start + 32]]
+            screen.append(data)
+        self.cache = screen
+
+    def screen(self):
+        if self.cache == 0:
+            self.update_cache()
+        return self.cache
+
+
+    def load(self):
+        with open(f'{sys.argv[1]}') as f:
+            code = [[int(i) for i in line.strip()[:16]] for line in f.readlines()]
+        for instruction in code:
+            self.update(instruction)
+            self.next()
+        self.addr(0)
+
+
+
+if __name__ == '__main__':
+    mem = memory(24577)
+    mem.screen()
+    mem.load()
+    print()
+    print(mem.screen())
+
+
+
+
+

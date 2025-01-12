@@ -1,0 +1,53 @@
+from Register import Register
+from Gates import Inc
+
+
+class Counter():
+    def __init__(self, width):
+        self.reg = Register(width)
+    
+    def inc(self, clock):
+        word = ''
+        for i in self.reg.state():
+            word += i 
+        for i, bit in enumerate(Inc(word)):
+            self.reg.bits[i].update(bit, 1, clock) 
+
+    def update(self, word, clock):
+        self.reg.update(word, 1, clock)
+
+    def reset(self, clock):
+        for i in range(0, self.reg.size):
+            self.reg.bits[i].update('0', 1, clock) 
+
+    def state(self):
+        return self.reg.state()
+
+
+def test():
+    width = int(input('Width?: '))
+    counter = Counter(width)
+    tick = 0
+    while True:
+        if tick == 0:
+            choice = input('Inc/Load/Reset? ')
+            if choice == 'i':
+                counter.inc(tick)
+            if choice == 'l':
+                word = input('Word?: ')
+                counter.update(word, tick)
+            if choice == 'r':
+                counter.reset(tick)
+        if tick == 1:
+            counter.inc(1)
+            counter.reset(1)
+            counter.update('0' * width, 1)
+            print(counter.state())
+        tick = 1 - tick
+
+if __name__ == '__main__':
+    test()
+            
+
+
+

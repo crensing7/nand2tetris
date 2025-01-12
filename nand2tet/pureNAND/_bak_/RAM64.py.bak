@@ -1,0 +1,50 @@
+from RAM8 import RAM8
+from Gates import Mux8, Dmux8, And
+
+
+class RAM64():
+    def __init__(self):
+        self.size = 8
+        self.width = 4
+        self.reg64 = [RAM8() for _ in range(self.size)]
+
+    def update(self, word, load, address, clock):
+        signal8 = Dmux8(load, address[0:3])
+        signal = Dmux8(load, address[3:6])
+        for position8, load8 in enumerate(signal8):
+            for position, load in enumerate(signal):
+                self.reg64[position8].reg8[position].update(word, And(load8, load), clock) 
+
+    def state(self, address):
+        pass
+
+
+
+ram = RAM64()
+word = [1, 1, 1, 1]
+address = [1, 1, 0, 1, 1, 0]
+ram.update(word, 1, address, 0)
+ram.update(word, 1, address, 1)
+for i in range(ram.size):
+    address = [0, 0, 0]
+    print(i, ram.reg64[i].state(address))
+    address = [0, 0, 1]
+    print(i, ram.reg64[i].state(address))
+    address = [0, 1, 0]
+    print(i, ram.reg64[i].state(address))
+    address = [0, 1, 1]
+    print(i, ram.reg64[i].state(address))
+    address = [1, 0, 0]
+    print(i, ram.reg64[i].state(address))
+    address = [1, 0, 1]
+    print(i, ram.reg64[i].state(address))
+    address = [1, 1, 0]
+    print(i, ram.reg64[i].state(address))
+    address = [1, 1, 1]
+    print(i, ram.reg64[i].state(address))
+
+
+
+
+
+

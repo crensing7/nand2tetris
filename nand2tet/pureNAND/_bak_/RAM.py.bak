@@ -1,0 +1,47 @@
+from Register import Register
+
+
+class RAM():
+    def __init__(self, size, width):
+        self.size = size
+        self.reg = [Register(width) for _ in range(self.size)]
+
+    def update(self, word, load, address, clock):
+        if address > self.size:
+            raise ValueError('Address out of range!')
+        self.reg[address].update(word, load, clock)
+
+    def state(self, address):
+        if address > self.size:
+            raise ValueError('Address out of range!')
+        return self.reg[address].state()
+        
+
+def test():
+    ram = RAM(8, 4)
+    tick = 0
+    while True:
+        choice = input('Read/Write/All/Tick? ')
+        if choice == 'r':
+            address = int(input('Address: '))
+            print(ram.state(address))
+        if choice == 'w':
+            word = input('Word: ')
+            load = input('Load?: ')
+            address = int(input('Address: '))
+            ram.update(word, load, address, 0)
+        if choice == 'a':
+            for i in range(ram.size):
+                print(ram.state(i))
+        if choice == 'e':
+            for i in range(ram.size):
+                ram.update('0000', '0', i, 1)
+        tick = 1 - tick
+
+
+if __name__ == '__main__':
+    test()
+
+
+
+

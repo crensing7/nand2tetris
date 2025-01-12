@@ -1,0 +1,4 @@
+    program = './program.txt'
+    rom.load(program)
+    address = [int(_) for _ in input('Address: ')]
+    rom.state(address)

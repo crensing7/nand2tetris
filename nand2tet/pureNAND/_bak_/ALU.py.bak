@@ -1,0 +1,43 @@
+from Gates import Not, And, Or, Mux, Adder
+
+def ALU(inx, iny, ctrl):
+
+	## Extract control values	
+	zx = ctrl[0] 
+	nx = ctrl[1]  
+	zy = ctrl[2] 
+	ny = ctrl[3] 
+	ff = ctrl[4] 
+	no = ctrl[5] 
+
+	## Zero and Negate X
+	xmid = ''
+	for bitx in inx:
+		z = Mux(bitx, '0', zx)
+		n = Mux(z, Not(z), nx)
+		xmid += n
+
+	## Zero and Negate Y
+	ymid = ''
+	for bity in iny:
+		z = Mux(bity, '0', zy)
+		n = Mux(z, Not(z), ny)
+		ymid += n
+
+	## Determine Operation and Negation
+	f = Mux(And(xmid, ymid), Adder(xmid, ymid), ff)
+	out = Mux(f, Not(f), no)
+
+	## Output checks for zero or negative 
+	zrTemp = '0'
+	for bitout in out[::-1]:
+		zrTemp = Or(bitout, zrTemp)
+	zr = Not(zrTemp)
+	ng = And(out[0], 1)
+
+	return out, zr, ng
+
+
+print(ALU('000', '111', '000000'))
+
+
